@@ -3,7 +3,9 @@
   Content: <%= @post.content %><br>
   Comments: <% @post.comments.each do |c| %>
     <%= c.content %>
-  <% end %><br>
+  <% end %>
+
+
 
   Category Name: <% @post.categories.each do |category| %>
     <%= category.name %>
@@ -12,22 +14,29 @@
   Usernames:<br>
 
   <br>
-
+<ul>
   <% @post.users.uniq.each do |u| %>
     <%= link_to u.username, user_path(u)   %><br>
+      <% u.comments.each do |c| %>
+      <li>  <%= u.username %> says: <%=c.content %> <li>
+      <% end %>
+      </ul>
   <% end %><br>
 
-<h2>Add a New Comment? </h2>
+<h2>Add New Content</h2>
 
 <%= form_for @post.comments.build do |f| %>
+  <%= f.hidden_field :post_id, :value => @post.id %>
+
   <%= f.label "Content" %>
   <%= f.text_area :content %>
 
-  <%= f.collection_select :user_id, User.all, :id, :username %>
+
 <br>
-   <%= f.fields_for :users, User.new do |user_builder|%>
-    <% user_builder.text_field :username %>
-    <% user_builder.text_field :email %>
-  <% end %>
+   <%= f.collection_select :user_id, User.all, :id, :username, {:include_blank => true } %>
+
+   <%= f.fields_for :user, @post.users.build do |user_builder|%>
+      User: <%= user_builder.text_field :username %>
+   <% end %>
   <%= f.submit %>
 <% end %>
